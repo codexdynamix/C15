@@ -132,7 +132,7 @@ export function Nav() {
     useSiteConfig();
   const { isDark } = useTheme();
 
-  const brandName = config.siteName || "Codex Dynamics";
+  const brandName = (config.siteName || "Codex Dynamics").replace(/\s*\/\s*/g, " ").replace(/\/+/g, "").trim();
   const brandInitial = brandName.trim().charAt(0).toUpperCase() || "C";
 
   const instagramHref = config.headerSocials?.instagram?.url || socialsGrouped.instagram?.[0]?.href || LINKS.instagram;

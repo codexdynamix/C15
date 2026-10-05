@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { ROLE } from '../shared';
 import {
@@ -195,7 +196,8 @@ function NotificationBell({ user }) {
   }, [user?.role]);
 
   const settings    = usePlatformSettings();
-  const baseTitle   = `${settings.platformName || 'Codex Dynamics'} Admin`;
+  const cleanPlatformName = (settings.platformName || 'Codex Dynamics').replace(/\s*\/\s*/g, ' ').replace(/\/+/g, '').trim();
+  const baseTitle   = `${cleanPlatformName} Admin`;
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -439,9 +441,10 @@ export function UserChrome({ user, data, setData }) {
         </button>
       </div>
 
-      {open && (
+      {open && typeof document !== 'undefined' && createPortal(
         <div
-          className="crm-profile-overlay"
+          className="crm-admin-app crm-profile-overlay"
+          data-crm-mode="dark"
           onClick={closeModal}
           role="presentation"
         >
@@ -464,7 +467,10 @@ export function UserChrome({ user, data, setData }) {
                 onClick={closeModal}
                 aria-label="Close profile"
               >
-                ✕
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
 
@@ -490,7 +496,7 @@ export function UserChrome({ user, data, setData }) {
                 label="Password"
                 value={
                   showPwd
-                    ? (user.password || (isSuperAdmin ? '- update via Edit Account below' : '-'))
+                    ? (user.password || (isSuperAdmin ? 'Managed via Edit Account' : '-'))
                     : '••••••••'
                 }
                 mono
@@ -540,7 +546,7 @@ export function UserChrome({ user, data, setData }) {
                         'crm-profile-status ' + (user.isLoggedIn ? 'is-online' : 'is-offline')
                       }
                     />
-                    {user.isLoggedIn ? 'Online' : 'Offline'}
+                    <span>{user.isLoggedIn ? 'Online' : 'Offline'}</span>
                   </>
                 }
               />
@@ -686,7 +692,8 @@ export function UserChrome({ user, data, setData }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
@@ -696,16 +703,18 @@ function ProfileRow({ label, value, mono, link, children }) {
   return (
     <div className="crm-profile-row">
       <span className="crm-profile-label">{label}</span>
-      <span
-        className={
-          'crm-profile-value' +
-          (mono ? ' crm-profile-mono' : '') +
-          (link ? ' crm-profile-link' : '')
-        }
-      >
-        {value}
-      </span>
-      {children}
+      <div className="crm-profile-value-wrap">
+        <span
+          className={
+            'crm-profile-value' +
+            (mono ? ' crm-profile-mono' : '') +
+            (link ? ' crm-profile-link' : '')
+          }
+        >
+          {value}
+        </span>
+        {children && <div className="crm-profile-row-actions">{children}</div>}
+      </div>
     </div>
   );
 }

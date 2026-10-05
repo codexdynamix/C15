@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ROLE } from '../../shared';
 import { adminLogin, mapAdminToUser, fetchAdminMe } from '../../adminApi';
+import { usePlatformSettings } from '../../../platformDefaults';
 
 const ROLE_PATH = {
   [ROLE.SUPER_ADMIN]:    'super-admin',
@@ -13,28 +14,28 @@ const ROLE_PATH = {
 const ROLE_META = {
   [ROLE.SUPER_ADMIN]: {
     icon: '👑',
-    gradient: 'linear-gradient(135deg, #FF9F0A 0%, #FF375F 100%)',
+    accent: '#FF9F0A',
     title: 'Super Admin',
     subtitle: 'Full System Governance & Platform Control',
     defaultEmail: 'admin@codexdynamix.com',
   },
   [ROLE.OFFICE_MANAGER]: {
     icon: '🏢',
-    gradient: 'linear-gradient(135deg, #0A84FF 0%, #5E5CE6 100%)',
+    accent: '#0A84FF',
     title: 'Office Manager',
     subtitle: 'Branch Operations & Performance Oversight',
     defaultEmail: 'manager@codexdynamics.com',
   },
   [ROLE.TEAM_LEADER]: {
     icon: '👥',
-    gradient: 'linear-gradient(135deg, #5E5CE6 0%, #BF5AF2 100%)',
+    accent: '#5E5CE6',
     title: 'Team Leader',
     subtitle: 'Unit Coaching & Active Pipeline Routing',
     defaultEmail: 'leader@codexdynamics.com',
   },
   [ROLE.AGENT]: {
     icon: '⚡',
-    gradient: 'linear-gradient(135deg, #30D158 0%, #64D2FF 100%)',
+    accent: '#30D158',
     title: 'Sales Agent',
     subtitle: 'Lead Acceleration & Real-Time Engagement',
     defaultEmail: 'agent@codexdynamics.com',
@@ -45,6 +46,8 @@ const RoleLogin = ({ role, onAdminLogin }) => {
   const navigate  = useNavigate();
   const meta      = ROLE_META[role] || ROLE_META[ROLE.AGENT];
   const rolePath  = ROLE_PATH[role];
+  const platformSettings = usePlatformSettings();
+  const cleanBrand = (platformSettings?.platformName || 'Codex Dynamics').replace(/\s*\/\s*/g, ' ').replace(/\/+/g, '').trim();
 
   const [email,        setEmail]        = useState(meta.defaultEmail || '');
   const [password,     setPassword]     = useState('Admin123!');
@@ -88,28 +91,14 @@ const RoleLogin = ({ role, onAdminLogin }) => {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'radial-gradient(circle at 50% 20%, rgba(10, 132, 255, 0.12) 0%, rgba(0, 0, 0, 0.96) 65%, #000000 100%)',
+      backgroundColor: '#000000',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif',
       padding: '24px 16px',
       position: 'relative',
-      overflow: 'hidden',
     }}>
-      {/* iOS Ambient Light Orbs */}
-      <div style={{
-        position: 'absolute',
-        top: '15%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '440px',
-        height: '440px',
-        background: 'radial-gradient(circle, rgba(10, 132, 255, 0.15) 0%, transparent 70%)',
-        filter: 'blur(60px)',
-        pointerEvents: 'none',
-      }} />
-
       <div style={{ width: '100%', maxWidth: '420px', position: 'relative', zIndex: 1 }}>
 
         {/* Back navigation */}
@@ -120,49 +109,46 @@ const RoleLogin = ({ role, onAdminLogin }) => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              color: '#8E8E93',
+              color: 'rgba(235, 235, 245, 0.65)',
               fontSize: '13px',
               fontWeight: 500,
               textDecoration: 'none',
               padding: '6px 14px',
               borderRadius: '999px',
-              background: 'rgba(255, 255, 255, 0.06)',
-              backdropFilter: 'blur(20px)',
-              border: '0.5px solid rgba(255, 255, 255, 0.1)',
-              transition: 'all 0.2s ease',
+              background: '#1C1C1E',
+              border: '0.5px solid rgba(255, 255, 255, 0.12)',
+              transition: 'all 0.18s ease',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#8E8E93'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; e.currentTarget.style.background = '#2C2C2E'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(235, 235, 245, 0.65)'; e.currentTarget.style.background = '#1C1C1E'; }}
           >
             <span>‹</span>
             <span>All Portals</span>
           </Link>
         </div>
 
-        {/* Apple iOS Inset Grouped Frosted Glass Card */}
+        {/* Apple iOS Inset Grouped Matte Card */}
         <div style={{
-          background: 'rgba(28, 28, 32, 0.82)',
-          backdropFilter: 'blur(40px) saturate(190%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(190%)',
-          border: '0.5px solid rgba(255, 255, 255, 0.16)',
-          borderRadius: '28px',
+          background: '#1C1C1E',
+          border: '0.5px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: '22px',
           padding: '36px 30px',
-          boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 32px 84px rgba(0, 0, 0, 0.65)',
+          boxShadow: '0 16px 40px rgba(0, 0, 0, 0.5)',
         }}>
 
           {/* iOS App Icon Squircle */}
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '18px',
+              width: '60px',
+              height: '60px',
+              borderRadius: '16px',
               margin: '0 auto 16px',
-              background: meta.gradient,
+              background: meta.accent || '#0A84FF',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '28px',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+              fontSize: '26px',
+              color: '#FFFFFF',
             }}>
               {meta.icon}
             </div>
@@ -175,7 +161,7 @@ const RoleLogin = ({ role, onAdminLogin }) => {
               color: '#0A84FF',
               marginBottom: '6px',
             }}>
-              Codex Dynamics
+              {cleanBrand}
             </div>
 
             <h1 style={{
@@ -220,10 +206,10 @@ const RoleLogin = ({ role, onAdminLogin }) => {
           {/* Form */}
           <form onSubmit={handleSubmit}>
             <div style={{
-              background: 'rgba(118, 118, 128, 0.16)',
-              border: '0.5px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: '16px',
-              padding: '4px',
+              background: '#2C2C2E',
+              border: '0.5px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '14px',
+              overflow: 'hidden',
               marginBottom: '20px',
             }}>
               {/* Email row */}
@@ -233,7 +219,7 @@ const RoleLogin = ({ role, onAdminLogin }) => {
               }}>
                 <label style={{
                   display: 'block',
-                  color: '#8E8E93',
+                  color: 'rgba(235, 235, 245, 0.6)',
                   fontSize: '0.68rem',
                   fontWeight: 600,
                   marginBottom: '4px',
@@ -269,7 +255,7 @@ const RoleLogin = ({ role, onAdminLogin }) => {
               <div style={{ padding: '10px 14px', position: 'relative' }}>
                 <label style={{
                   display: 'block',
-                  color: '#8E8E93',
+                  color: 'rgba(235, 235, 245, 0.6)',
                   fontSize: '0.68rem',
                   fontWeight: 600,
                   marginBottom: '4px',
@@ -307,7 +293,7 @@ const RoleLogin = ({ role, onAdminLogin }) => {
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#8E8E93',
+                      color: 'rgba(235, 235, 245, 0.6)',
                       padding: '4px',
                       display: 'flex',
                       alignItems: 'center',
@@ -342,17 +328,16 @@ const RoleLogin = ({ role, onAdminLogin }) => {
               disabled={loading}
               style={{
                 width: '100%',
-                height: '48px',
+                height: '46px',
                 background: loading ? 'rgba(10, 132, 255, 0.5)' : '#0A84FF',
                 border: 'none',
-                borderRadius: '14px',
+                borderRadius: '12px',
                 color: '#FFFFFF',
                 fontSize: '0.95rem',
                 fontWeight: 600,
                 letterSpacing: '-0.015em',
                 cursor: loading ? 'wait' : 'pointer',
                 transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: '0 2px 8px rgba(10, 132, 255, 0.4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

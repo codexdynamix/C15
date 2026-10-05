@@ -199,15 +199,14 @@ export default function StaffProfileModal({
                 width: 48,
                 height: 48,
                 borderRadius: 14,
-                background: 'linear-gradient(135deg, var(--crm-accent, #0A84FF) 0%, #5E5CE6 100%)',
+                background: 'var(--crm-accent, #0A84FF)',
                 color: '#FFFFFF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 17,
-                fontWeight: 800,
+                fontWeight: 700,
                 flexShrink: 0,
-                boxShadow: '0 2px 8px rgba(10, 132, 255, 0.3)',
               }}
             >
               {getInitials(liveStaff.name)}

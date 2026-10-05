@@ -180,7 +180,8 @@ function useBrandIdentity() {
 
 function AdminBrand() {
   const { abbreviation, name } = useBrandIdentity();
-  const [first, ...rest] = (name || 'Codex Dynamics').split(/[- / \s]+/);
+  const cleanName = (name || 'Codex Dynamics').replace(/\s*\/\s*/g, ' ').replace(/\/+/g, '').trim();
+  const [first, ...rest] = cleanName.split(/\s+/);
   const second = rest.join(' ') || 'Dynamics';
   return (
     <div className="crm-brand">
@@ -295,21 +296,22 @@ function RolePage({ data, dataLoading, role, setLeadAssignment, assignOfficeMana
 function BackofficeLanding() {
   const navigate = useNavigate();
   const { abbreviation, name } = useBrandIdentity();
-  const [first, ...rest] = (name || 'Codex Dynamics').split(/[- / \s]+/);
+  const cleanName = (name || 'Codex Dynamics').replace(/\s*\/\s*/g, ' ').replace(/\/+/g, '').trim();
+  const [first, ...rest] = cleanName.split(/\s+/);
   const second = rest.join(' ') || 'Dynamics';
   const initial = (abbreviation || 'C').charAt(0).toUpperCase();
 
   const portals = [
-    { to: '/admin/login/super-admin',    icon: Crown, title: 'Super Admin',    desc: 'Full system governance: offices, teams, staff & leads', accent: '#FF9F0A', gradient: 'linear-gradient(135deg, #FF9F0A, #FF375F)' },
-    { to: '/admin/login/office-manager', icon: Building2, title: 'Office Manager', desc: 'Oversee your office branch, teams, agents and pipeline',  accent: '#0A84FF', gradient: 'linear-gradient(135deg, #0A84FF, #5E5CE6)' },
-    { to: '/admin/login/team-leader',    icon: Users, title: 'Team Leader',    desc: 'Coach your unit: monitor agents, calls & active leads',     accent: '#5E5CE6', gradient: 'linear-gradient(135deg, #5E5CE6, #BF5AF2)' },
-    { to: '/admin/login/agent',          icon: UserCheck, title: 'Sales Agent', desc: 'Work assigned leads, log touchpoints & record deposits', accent: '#30D158', gradient: 'linear-gradient(135deg, #30D158, #64D2FF)' },
+    { to: '/admin/login/super-admin',    icon: Crown, title: 'Super Admin',    desc: 'Full system governance: offices, teams, staff & leads', accent: '#FF9F0A' },
+    { to: '/admin/login/office-manager', icon: Building2, title: 'Office Manager', desc: 'Oversee your office branch, teams, agents and pipeline',  accent: '#0A84FF' },
+    { to: '/admin/login/team-leader',    icon: Users, title: 'Team Leader',    desc: 'Coach your unit: monitor agents, calls & active leads',     accent: '#5E5CE6' },
+    { to: '/admin/login/agent',          icon: UserCheck, title: 'Sales Agent', desc: 'Work assigned leads, log touchpoints & record deposits', accent: '#30D158' },
   ];
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'radial-gradient(circle at 50% 15%, rgba(10, 132, 255, 0.12) 0%, rgba(0, 0, 0, 0.98) 65%, #000000 100%)',
+      backgroundColor: '#000000',
       color: '#F5F5F7',
       display: 'flex',
       flexDirection: 'column',
@@ -319,21 +321,7 @@ function BackofficeLanding() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif',
       WebkitFontSmoothing: 'antialiased',
       position: 'relative',
-      overflow: 'hidden',
     }}>
-      {/* Background ambient lighting */}
-      <div style={{
-        position: 'absolute',
-        top: '10%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '500px',
-        height: '500px',
-        background: 'radial-gradient(circle, rgba(10, 132, 255, 0.12) 0%, transparent 70%)',
-        filter: 'blur(70px)',
-        pointerEvents: 'none',
-      }} />
-
       {/* Brand Header */}
       <div style={{ textAlign: 'center', marginBottom: 40, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
@@ -341,11 +329,10 @@ function BackofficeLanding() {
             width: 52,
             height: 52,
             borderRadius: 15,
-            background: 'linear-gradient(135deg, #0A84FF 0%, #5E5CE6 100%)',
+            background: '#0A84FF',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(10, 132, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
           }}>
             <span style={{ fontSize: 24, fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em' }}>{initial}</span>
           </div>
@@ -353,7 +340,7 @@ function BackofficeLanding() {
             {first} {second}
           </div>
         </div>
-        <div style={{ fontSize: 16, color: '#8E8E93', fontWeight: 500, letterSpacing: '-0.01em' }}>Apple iOS Inspired Backoffice Suite</div>
+        <div style={{ fontSize: 16, color: '#8E8E93', fontWeight: 500, letterSpacing: '-0.01em' }}>Apple iOS Backoffice Suite</div>
         <div style={{ fontSize: 13, color: '#636366', marginTop: 4, letterSpacing: '-0.005em' }}>Select a role workspace to launch an instant authenticated session.</div>
       </div>
 
@@ -375,42 +362,39 @@ function BackofficeLanding() {
               key={p.to}
               onClick={() => navigate(p.to)}
               style={{
-                background: 'rgba(28, 28, 32, 0.72)',
-                backdropFilter: 'blur(30px) saturate(190%)',
-                WebkitBackdropFilter: 'blur(30px) saturate(190%)',
-                border: '0.5px solid rgba(255, 255, 255, 0.14)',
-                borderRadius: '24px',
+                background: '#1C1C1E',
+                border: '0.5px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '20px',
                 padding: '28px 22px',
                 cursor: 'pointer',
-                transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                 textAlign: 'center',
-                boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12), 0 8px 32px rgba(0, 0, 0, 0.35)',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px) scale(1.015)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                e.currentTarget.style.boxShadow = `inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 16px 42px rgba(0,0,0,0.5), 0 0 0 1px ${p.accent}50`;
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.background = '#242426';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.14)';
-                e.currentTarget.style.boxShadow = 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12), 0 8px 32px rgba(0, 0, 0, 0.35)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.background = '#1C1C1E';
               }}
             >
               <div style={{
-                width: 54,
-                height: 54,
-                borderRadius: 16,
-                background: p.gradient,
+                width: 52,
+                height: 52,
+                borderRadius: 15,
+                background: p.accent,
                 color: '#FFFFFF',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: 16,
-                boxShadow: `0 8px 20px ${p.accent}40, inset 0 1px 0 rgba(255, 255, 255, 0.35)`,
               }}>
                 <IconComp size={24} strokeWidth={2.2} />
               </div>
@@ -431,10 +415,8 @@ function BackofficeLanding() {
           }
         }}
         style={{
-          background: 'rgba(28, 28, 32, 0.65)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '0.5px solid rgba(255, 255, 255, 0.14)',
+          background: '#1C1C1E',
+          border: '0.5px solid rgba(255, 255, 255, 0.12)',
           borderRadius: 999,
           padding: '10px 22px',
           cursor: 'pointer',
@@ -442,17 +424,16 @@ function BackofficeLanding() {
           display: 'inline-flex',
           alignItems: 'center',
           gap: 12,
-          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
           position: 'relative',
           zIndex: 1,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-          e.currentTarget.style.transform = 'translateY(-1px)';
+          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+          e.currentTarget.style.background = '#242426';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.14)';
-          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+          e.currentTarget.style.background = '#1C1C1E';
         }}
       >
         <div style={{

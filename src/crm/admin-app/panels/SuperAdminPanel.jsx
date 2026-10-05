@@ -1527,7 +1527,7 @@ function AllLeadsTable({ data, currentUser, setData, setLeadAssignment, showNoti
                           width: 32,
                           height: 32,
                           borderRadius: '50%',
-                          background: 'linear-gradient(135deg, var(--crm-accent, #0A84FF), #5E5CE6)',
+                          background: 'var(--crm-accent, #0A84FF)',
                           color: '#FFFFFF',
                           display: 'flex',
                           alignItems: 'center',
@@ -1535,7 +1535,6 @@ function AllLeadsTable({ data, currentUser, setData, setLeadAssignment, showNoti
                           fontWeight: 600,
                           fontSize: 11,
                           flexShrink: 0,
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
                         }}>
                           {((lead.firstName?.[0] || '') + (lead.lastName?.[0] || '')).toUpperCase() || 'L'}
                         </div>
