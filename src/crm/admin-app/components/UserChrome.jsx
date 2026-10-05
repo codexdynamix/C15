@@ -310,6 +310,7 @@ export function UserChrome({ user, data, setData }) {
   const [signingOut, setSigningOut] = useState(false);
 
   const isSuperAdmin = user?.role === ROLE.SUPER_ADMIN;
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'edit' | 'all'
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editPassword, setEditPassword] = useState('');
@@ -447,6 +448,20 @@ export function UserChrome({ user, data, setData }) {
           data-crm-mode="dark"
           onClick={closeModal}
           role="presentation"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999999,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+            boxSizing: 'border-box',
+            overflowY: 'auto',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", -apple-system, sans-serif',
+            WebkitFontSmoothing: 'antialiased',
+          }}
         >
           <div
             className="crm-profile-modal"
@@ -454,18 +469,111 @@ export function UserChrome({ user, data, setData }) {
             role="dialog"
             aria-modal="true"
             aria-label={`${user.name} profile`}
+            style={{
+              position: 'relative',
+              zIndex: 1000000,
+              backgroundColor: '#1C1C1E',
+              border: '0.5px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '20px',
+              width: '100%',
+              maxWidth: '430px',
+              maxHeight: 'min(86vh, 580px)',
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: 0,
+              margin: 'auto',
+              color: '#FFFFFF',
+              boxShadow: '0 16px 40px rgba(0, 0, 0, 0.6)',
+              overflow: 'hidden',
+              boxSizing: 'border-box',
+            }}
           >
-            <div className="crm-profile-header">
-              <div className="crm-profile-avatar">{initials}</div>
-              <div className="crm-profile-id">
-                <h3>{user.name}</h3>
-                <span className="crm-profile-role">{user.role}</span>
+            {/* Header */}
+            <div
+              className="crm-profile-header"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '14px',
+                padding: '16px 18px 14px',
+                borderBottom: '0.5px solid rgba(255, 255, 255, 0.08)',
+                flexShrink: 0,
+                backgroundColor: '#1C1C1E',
+                boxSizing: 'border-box',
+              }}
+            >
+              <div
+                className="crm-profile-avatar"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  color: '#FFFFFF',
+                  backgroundColor: '#0A84FF',
+                  flexShrink: 0,
+                }}
+              >
+                {initials}
+              </div>
+              <div className="crm-profile-id" style={{ flex: 1, minWidth: 0 }}>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    color: '#FFFFFF',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {user.name}
+                </h3>
+                <span
+                  className="crm-profile-role"
+                  style={{
+                    display: 'inline-block',
+                    marginTop: '3px',
+                    fontSize: '10.5px',
+                    fontWeight: 600,
+                    letterSpacing: '0.04em',
+                    color: '#0A84FF',
+                    backgroundColor: 'rgba(10, 132, 255, 0.14)',
+                    border: '0.5px solid rgba(10, 132, 255, 0.28)',
+                    padding: '2px 7px',
+                    borderRadius: '999px',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {user.role}
+                </span>
               </div>
               <button
                 type="button"
                 className="crm-profile-close"
                 onClick={closeModal}
                 aria-label="Close profile"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  border: '0.5px solid rgba(255, 255, 255, 0.1)',
+                  color: 'rgba(235, 235, 245, 0.7)',
+                  borderRadius: '50%',
+                  width: '28px',
+                  height: '28px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  padding: 0,
+                  marginLeft: 'auto',
+                  flexShrink: 0,
+                }}
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -474,174 +582,515 @@ export function UserChrome({ user, data, setData }) {
               </button>
             </div>
 
-            <div className="crm-profile-body">
-              <ProfileRow label="Email" value={user.email || '-'}>
-                {user.email && (
-                  <button
-                    type="button"
-                    className="crm-profile-copy"
-                    onClick={() => copy(user.email, 'email')}
-                    title="Copy email"
-                    aria-label="Copy email"
-                  >
-                    {copied === 'email' ? <CheckIcon /> : <CopyIcon />}
-                  </button>
-                )}
-              </ProfileRow>
-
-              {office && <ProfileRow label="Office" value={office.name} />}
-              {team && <ProfileRow label="Team" value={team.name} />}
-
-              <ProfileRow
-                label="Password"
-                value={
-                  showPwd
-                    ? (user.password || (isSuperAdmin ? 'Managed via Edit Account' : '-'))
-                    : '••••••••'
-                }
-                mono
+            {/* Apple Segmented View Switcher (Super Admin only) */}
+            {isSuperAdmin && (
+              <div
+                style={{
+                  display: 'flex',
+                  backgroundColor: 'rgba(118, 118, 128, 0.18)',
+                  padding: '3px',
+                  borderRadius: '10px',
+                  margin: '12px 18px 0',
+                  gap: '3px',
+                  flexShrink: 0,
+                  boxSizing: 'border-box',
+                }}
               >
                 <button
                   type="button"
-                  className="crm-profile-copy"
-                  onClick={() => setShowPwd((v) => !v)}
-                  title={showPwd ? 'Hide password' : 'Show password'}
-                  aria-label={showPwd ? 'Hide password' : 'Show password'}
+                  onClick={() => setActiveTab('overview')}
+                  style={{
+                    flex: 1,
+                    padding: '6px 8px',
+                    fontSize: '12.5px',
+                    fontWeight: activeTab === 'overview' ? 600 : 500,
+                    borderRadius: '7px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: activeTab === 'overview' ? '#636366' : 'transparent',
+                    color: activeTab === 'overview' ? '#FFFFFF' : 'rgba(235, 235, 245, 0.65)',
+                    transition: 'all 0.15s ease',
+                  }}
                 >
-                  {showPwd ? <EyeOffIcon /> : <EyeIcon />}
+                  Account Info
                 </button>
-                {user.password && (
-                  <button
-                    type="button"
-                    className="crm-profile-copy"
-                    onClick={() => copy(user.password, 'pwd')}
-                    title="Copy password"
-                    aria-label="Copy password"
-                  >
-                    {copied === 'pwd' ? <CheckIcon /> : <CopyIcon />}
-                  </button>
-                )}
-              </ProfileRow>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('edit')}
+                  style={{
+                    flex: 1,
+                    padding: '6px 8px',
+                    fontSize: '12.5px',
+                    fontWeight: activeTab === 'edit' ? 600 : 500,
+                    borderRadius: '7px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: activeTab === 'edit' ? '#636366' : 'transparent',
+                    color: activeTab === 'edit' ? '#FFFFFF' : 'rgba(235, 235, 245, 0.65)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  Edit Account
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('all')}
+                  style={{
+                    flex: 1,
+                    padding: '6px 8px',
+                    fontSize: '12.5px',
+                    fontWeight: activeTab === 'all' ? 600 : 500,
+                    borderRadius: '7px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: activeTab === 'all' ? '#636366' : 'transparent',
+                    color: activeTab === 'all' ? '#FFFFFF' : 'rgba(235, 235, 245, 0.65)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  View Both
+                </button>
+              </div>
+            )}
 
-              {user.loginLink && (
-                <ProfileRow label="Login link" value={user.loginLink} mono link>
-                  <button
-                    type="button"
-                    className="crm-profile-copy"
-                    onClick={() => copy(user.loginLink, 'link')}
-                    title="Copy login link"
-                    aria-label="Copy login link"
+            {/* Scrollable middle container */}
+            <div
+              className="crm-profile-scroll-area"
+              style={{
+                flex: '1 1 auto',
+                minHeight: 0,
+                overflowY: 'auto',
+                overscrollBehavior: 'contain',
+                padding: '14px 18px',
+                boxSizing: 'border-box',
+                WebkitOverflowScrolling: 'touch',
+              }}
+            >
+              {/* Profile Details List */}
+              {(!isSuperAdmin || activeTab === 'overview' || activeTab === 'all') && (
+                <div style={{ marginBottom: activeTab === 'all' && isSuperAdmin ? '16px' : '0' }}>
+                  <div
+                    className="crm-profile-body"
+                    style={{
+                      margin: 0,
+                      padding: 0,
+                      backgroundColor: '#2C2C2E',
+                      border: '0.5px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      boxSizing: 'border-box',
+                    }}
                   >
-                    {copied === 'link' ? <CheckIcon /> : <CopyIcon />}
-                  </button>
-                </ProfileRow>
-              )}
+                    <ProfileRow label="Email" value={user.email || '-'}>
+                      {user.email && (
+                        <button
+                          type="button"
+                          className="crm-profile-copy"
+                          onClick={() => copy(user.email, 'email')}
+                          title="Copy email"
+                          aria-label="Copy email"
+                          style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                            border: 'none',
+                            color: 'rgba(235, 235, 245, 0.7)',
+                            borderRadius: '6px',
+                            width: '24px',
+                            height: '24px',
+                            minWidth: '24px',
+                            minHeight: '24px',
+                            padding: 0,
+                            cursor: 'pointer',
+                            flexShrink: 0,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {copied === 'email' ? <CheckIcon /> : <CopyIcon />}
+                        </button>
+                      )}
+                    </ProfileRow>
 
-              <ProfileRow
-                label="Status"
-                value={
-                  <>
-                    <span
-                      className={
-                        'crm-profile-status ' + (user.isLoggedIn ? 'is-online' : 'is-offline')
+                    {office && <ProfileRow label="Office" value={office.name} />}
+                    {team && <ProfileRow label="Team" value={team.name} />}
+
+                    <ProfileRow
+                      label="Password"
+                      value={
+                        showPwd
+                          ? (user.password || (isSuperAdmin ? 'Managed via Edit Account' : '-'))
+                          : '••••••••'
+                      }
+                      mono
+                    >
+                      <button
+                        type="button"
+                        className="crm-profile-copy"
+                        onClick={() => setShowPwd((v) => !v)}
+                        title={showPwd ? 'Hide password' : 'Show password'}
+                        aria-label={showPwd ? 'Hide password' : 'Show password'}
+                        style={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          border: 'none',
+                          color: 'rgba(235, 235, 245, 0.7)',
+                          borderRadius: '6px',
+                          width: '24px',
+                          height: '24px',
+                          minWidth: '24px',
+                          minHeight: '24px',
+                          padding: 0,
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {showPwd ? <EyeOffIcon /> : <EyeIcon />}
+                      </button>
+                      {user.password && (
+                        <button
+                          type="button"
+                          className="crm-profile-copy"
+                          onClick={() => copy(user.password, 'pwd')}
+                          title="Copy password"
+                          aria-label="Copy password"
+                          style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                            border: 'none',
+                            color: 'rgba(235, 235, 245, 0.7)',
+                            borderRadius: '6px',
+                            width: '24px',
+                            height: '24px',
+                            minWidth: '24px',
+                            minHeight: '24px',
+                            padding: 0,
+                            cursor: 'pointer',
+                            flexShrink: 0,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {copied === 'pwd' ? <CheckIcon /> : <CopyIcon />}
+                        </button>
+                      )}
+                    </ProfileRow>
+
+                    {user.loginLink && (
+                      <ProfileRow label="Login link" value={user.loginLink} mono link>
+                        <button
+                          type="button"
+                          className="crm-profile-copy"
+                          onClick={() => copy(user.loginLink, 'link')}
+                          title="Copy login link"
+                          aria-label="Copy login link"
+                          style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                            border: 'none',
+                            color: 'rgba(235, 235, 245, 0.7)',
+                            borderRadius: '6px',
+                            width: '24px',
+                            height: '24px',
+                            minWidth: '24px',
+                            minHeight: '24px',
+                            padding: 0,
+                            cursor: 'pointer',
+                            flexShrink: 0,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {copied === 'link' ? <CheckIcon /> : <CopyIcon />}
+                        </button>
+                      </ProfileRow>
+                    )}
+
+                    <ProfileRow
+                      label="Status"
+                      value={
+                        <>
+                          <span
+                            className={
+                              'crm-profile-status ' + (user.isLoggedIn ? 'is-online' : 'is-offline')
+                            }
+                            style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              display: 'inline-block',
+                              flexShrink: 0,
+                              backgroundColor: user.isLoggedIn ? '#30D158' : '#8E8E93',
+                            }}
+                          />
+                          <span>{user.isLoggedIn ? 'Online' : 'Offline'}</span>
+                        </>
                       }
                     />
-                    <span>{user.isLoggedIn ? 'Online' : 'Offline'}</span>
-                  </>
-                }
-              />
-            </div>
+                  </div>
 
-            {isSuperAdmin && (
-              <div className="crm-profile-edit-section">
-                <div className="crm-profile-edit-heading">Edit Account</div>
-
-                {editError && (
-                  <div className="crm-profile-edit-banner crm-profile-edit-error">{editError}</div>
-                )}
-                {editSuccess && (
-                  <div className="crm-profile-edit-banner crm-profile-edit-success">{editSuccess}</div>
-                )}
-
-                <div className="crm-profile-edit-field">
-                  <label className="crm-profile-edit-label">Display Name</label>
-                  <input
-                    className="crm-super-admin-input"
-                    type="text"
-                    value={editName}
-                    onChange={e => { setEditName(e.target.value); setEditError(''); setEditSuccess(''); }}
-                    placeholder="Your full name"
-                    autoComplete="name"
-                  />
-                </div>
-
-                <div className="crm-profile-edit-field">
-                  <label className="crm-profile-edit-label">Login Email</label>
-                  <input
-                    className="crm-super-admin-input"
-                    type="email"
-                    value={editEmail}
-                    onChange={e => { setEditEmail(e.target.value); setEditError(''); setEditSuccess(''); }}
-                    placeholder="you@example.com"
-                    autoComplete="email"
-                  />
-                </div>
-
-                <div className="crm-profile-edit-field">
-                  <label className="crm-profile-edit-label">New Password <span className="crm-profile-edit-hint">(leave blank to keep current)</span></label>
-                  <div className="crm-pw-input-wrap">
-                    <input
-                      className="crm-pw-input"
-                      type={editPwShown ? 'text' : 'password'}
-                      value={editPassword}
-                      onChange={e => { setEditPassword(e.target.value); setEditError(''); setEditSuccess(''); }}
-                      placeholder="Min. 8 characters"
-                      autoComplete="new-password"
-                    />
+                  {isSuperAdmin && activeTab === 'overview' && (
                     <button
                       type="button"
-                      className="crm-pw-toggle"
-                      onClick={() => setEditPwShown(v => !v)}
-                      aria-label={editPwShown ? 'Hide password' : 'Show password'}
-                      title={editPwShown ? 'Hide password' : 'Show password'}
+                      onClick={() => setActiveTab('edit')}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        backgroundColor: '#2C2C2E',
+                        border: '0.5px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '12px',
+                        color: '#0A84FF',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        marginTop: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        transition: 'background-color 0.15s ease',
+                      }}
                     >
-                      {editPwShown ? (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.77 19.77 0 0 1 4.22-5.22" />
-                          <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-3.17 4.19" />
-                          <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88" />
-                          <line x1="1" y1="1" x2="23" y2="23" />
-                        </svg>
-                      ) : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
-                          <circle cx="12" cy="12" r="3" />
-                        </svg>
-                      )}
+                      <span>Edit Account Details</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
                     </button>
-                  </div>
+                  )}
                 </div>
+              )}
 
-                {editPassword && (
-                  <div className="crm-profile-edit-field">
-                    <label className="crm-profile-edit-label">Confirm New Password</label>
-                    <div className="crm-pw-input-wrap">
+              {/* Edit Account Section (Super Admin) */}
+              {isSuperAdmin && (activeTab === 'edit' || activeTab === 'all') && (
+                <div
+                  className="crm-profile-edit-section"
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <div
+                    className="crm-profile-edit-heading"
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                      color: 'rgba(235, 235, 245, 0.5)',
+                      margin: '0 0 8px 4px',
+                    }}
+                  >
+                    Edit Account
+                  </div>
+
+                  {editError && (
+                    <div
+                      className="crm-profile-edit-banner crm-profile-edit-error"
+                      style={{
+                        fontSize: '12.5px',
+                        borderRadius: '10px',
+                        padding: '9px 12px',
+                        marginBottom: '10px',
+                        backgroundColor: 'rgba(255, 69, 58, 0.15)',
+                        border: '0.5px solid rgba(255, 69, 58, 0.3)',
+                        color: '#FF453A',
+                      }}
+                    >
+                      {editError}
+                    </div>
+                  )}
+                  {editSuccess && (
+                    <div
+                      className="crm-profile-edit-banner crm-profile-edit-success"
+                      style={{
+                        fontSize: '12.5px',
+                        borderRadius: '10px',
+                        padding: '9px 12px',
+                        marginBottom: '10px',
+                        backgroundColor: 'rgba(48, 209, 88, 0.15)',
+                        border: '0.5px solid rgba(48, 209, 88, 0.3)',
+                        color: '#30D158',
+                      }}
+                    >
+                      {editSuccess}
+                    </div>
+                  )}
+
+                  {/* Display Name */}
+                  <div
+                    className="crm-profile-edit-field"
+                    style={{
+                      backgroundColor: '#2C2C2E',
+                      border: '0.5px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '12px',
+                      padding: '8px 12px',
+                      marginBottom: '8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '3px',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    <label
+                      className="crm-profile-edit-label"
+                      style={{
+                        fontSize: '10.5px',
+                        fontWeight: 500,
+                        color: 'rgba(235, 235, 245, 0.5)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        margin: 0,
+                      }}
+                    >
+                      Display Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={e => { setEditName(e.target.value); setEditError(''); setEditSuccess(''); }}
+                      placeholder="Your full name"
+                      autoComplete="name"
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        outline: 'none',
+                        color: '#FFFFFF',
+                        fontSize: '14px',
+                        padding: '2px 0',
+                        fontFamily: 'inherit',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  {/* Login Email */}
+                  <div
+                    className="crm-profile-edit-field"
+                    style={{
+                      backgroundColor: '#2C2C2E',
+                      border: '0.5px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '12px',
+                      padding: '8px 12px',
+                      marginBottom: '8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '3px',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    <label
+                      className="crm-profile-edit-label"
+                      style={{
+                        fontSize: '10.5px',
+                        fontWeight: 500,
+                        color: 'rgba(235, 235, 245, 0.5)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        margin: 0,
+                      }}
+                    >
+                      Login Email
+                    </label>
+                    <input
+                      type="email"
+                      value={editEmail}
+                      onChange={e => { setEditEmail(e.target.value); setEditError(''); setEditSuccess(''); }}
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        outline: 'none',
+                        color: '#FFFFFF',
+                        fontSize: '14px',
+                        padding: '2px 0',
+                        fontFamily: 'inherit',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  {/* New Password */}
+                  <div
+                    className="crm-profile-edit-field"
+                    style={{
+                      backgroundColor: '#2C2C2E',
+                      border: '0.5px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '12px',
+                      padding: '8px 12px',
+                      marginBottom: '8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '3px',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    <label
+                      className="crm-profile-edit-label"
+                      style={{
+                        fontSize: '10.5px',
+                        fontWeight: 500,
+                        color: 'rgba(235, 235, 245, 0.5)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        margin: 0,
+                      }}
+                    >
+                      New Password <span className="crm-profile-edit-hint" style={{ fontSize: '10px', textTransform: 'none', letterSpacing: 0, color: 'rgba(235, 235, 245, 0.4)', marginLeft: '4px' }}>(leave blank to keep current)</span>
+                    </label>
+                    <div
+                      className="crm-pw-input-wrap"
+                      style={{
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
+                    >
                       <input
-                        className="crm-pw-input"
-                        type={editConfirmShown ? 'text' : 'password'}
-                        value={editConfirm}
-                        onChange={e => { setEditConfirm(e.target.value); setEditError(''); setEditSuccess(''); }}
-                        placeholder="Repeat new password"
+                        type={editPwShown ? 'text' : 'password'}
+                        value={editPassword}
+                        onChange={e => { setEditPassword(e.target.value); setEditError(''); setEditSuccess(''); }}
+                        placeholder="Min. 8 characters"
                         autoComplete="new-password"
+                        style={{
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          outline: 'none',
+                          color: '#FFFFFF',
+                          fontSize: '14px',
+                          padding: '2px 28px 2px 0',
+                          fontFamily: 'inherit',
+                          width: '100%',
+                          boxSizing: 'border-box',
+                        }}
                       />
                       <button
                         type="button"
                         className="crm-pw-toggle"
-                        onClick={() => setEditConfirmShown(v => !v)}
-                        aria-label={editConfirmShown ? 'Hide password' : 'Show password'}
-                        title={editConfirmShown ? 'Hide password' : 'Show password'}
+                        onClick={() => setEditPwShown(v => !v)}
+                        aria-label={editPwShown ? 'Hide password' : 'Show password'}
+                        title={editPwShown ? 'Hide password' : 'Show password'}
+                        style={{
+                          position: 'absolute',
+                          right: 0,
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          color: 'rgba(235, 235, 245, 0.6)',
+                          cursor: 'pointer',
+                          padding: '4px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
                       >
-                        {editConfirmShown ? (
+                        {editPwShown ? (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                             <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.77 19.77 0 0 1 4.22-5.22" />
                             <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-3.17 4.19" />
@@ -656,28 +1105,175 @@ export function UserChrome({ user, data, setData }) {
                         )}
                       </button>
                     </div>
-                    {editConfirm && editPassword !== editConfirm && (
-                      <span className="crm-profile-edit-mismatch">Passwords do not match</span>
-                    )}
                   </div>
-                )}
 
-                <button
-                  type="button"
-                  className="crm-profile-edit-save"
-                  onClick={saveAccountDetails}
-                  disabled={editSaving || (editPassword && editPassword !== editConfirm)}
-                >
-                  {editSaving ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            )}
+                  {/* Confirm Password (if password entered) */}
+                  {editPassword && (
+                    <div
+                      className="crm-profile-edit-field"
+                      style={{
+                        backgroundColor: '#2C2C2E',
+                        border: '0.5px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '12px',
+                        padding: '8px 12px',
+                        marginBottom: '8px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '3px',
+                        boxSizing: 'border-box',
+                      }}
+                    >
+                      <label
+                        className="crm-profile-edit-label"
+                        style={{
+                          fontSize: '10.5px',
+                          fontWeight: 500,
+                          color: 'rgba(235, 235, 245, 0.5)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                          margin: 0,
+                        }}
+                      >
+                        Confirm New Password
+                      </label>
+                      <div
+                        className="crm-pw-input-wrap"
+                        style={{
+                          position: 'relative',
+                          display: 'flex',
+                          alignItems: 'center',
+                          width: '100%',
+                        }}
+                      >
+                        <input
+                          type={editConfirmShown ? 'text' : 'password'}
+                          value={editConfirm}
+                          onChange={e => { setEditConfirm(e.target.value); setEditError(''); setEditSuccess(''); }}
+                          placeholder="Repeat new password"
+                          autoComplete="new-password"
+                          style={{
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            outline: 'none',
+                            color: '#FFFFFF',
+                            fontSize: '14px',
+                            padding: '2px 28px 2px 0',
+                            fontFamily: 'inherit',
+                            width: '100%',
+                            boxSizing: 'border-box',
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="crm-pw-toggle"
+                          onClick={() => setEditConfirmShown(v => !v)}
+                          aria-label={editConfirmShown ? 'Hide password' : 'Show password'}
+                          title={editConfirmShown ? 'Hide password' : 'Show password'}
+                          style={{
+                            position: 'absolute',
+                            right: 0,
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            color: 'rgba(235, 235, 245, 0.6)',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {editConfirmShown ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.77 19.77 0 0 1 4.22-5.22" />
+                              <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-3.17 4.19" />
+                              <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88" />
+                              <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      {editConfirm && editPassword !== editConfirm && (
+                        <span
+                          className="crm-profile-edit-mismatch"
+                          style={{
+                            fontSize: '11px',
+                            color: '#FF453A',
+                            marginTop: '2px',
+                          }}
+                        >
+                          Passwords do not match
+                        </span>
+                      )}
+                    </div>
+                  )}
 
-            <div className="crm-profile-footer">
+                  <button
+                    type="button"
+                    className="crm-profile-edit-save"
+                    onClick={saveAccountDetails}
+                    disabled={editSaving || (editPassword && editPassword !== editConfirm)}
+                    style={{
+                      backgroundColor: '#0A84FF',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: '12px',
+                      height: '40px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      cursor: editSaving || (editPassword && editPassword !== editConfirm) ? 'not-allowed' : 'pointer',
+                      opacity: editSaving || (editPassword && editPassword !== editConfirm) ? 0.45 : 1,
+                      marginTop: '4px',
+                      transition: 'all 0.14s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {editSaving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Pinned Footer */}
+            <div
+              className="crm-profile-footer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '12px 18px',
+                borderTop: '0.5px solid rgba(255, 255, 255, 0.08)',
+                flexShrink: 0,
+                backgroundColor: '#1C1C1E',
+                boxSizing: 'border-box',
+              }}
+            >
               <button
                 type="button"
                 className="crm-profile-secondary"
                 onClick={closeModal}
+                style={{
+                  flex: 1,
+                  height: '40px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(120, 120, 128, 0.24)',
+                  border: 'none',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background-color 0.14s ease',
+                }}
               >
                 Close
               </button>
@@ -686,6 +1282,24 @@ export function UserChrome({ user, data, setData }) {
                 className="crm-profile-logout"
                 onClick={handleLogout}
                 disabled={signingOut}
+                style={{
+                  flex: 1,
+                  height: '40px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(255, 69, 58, 0.16)',
+                  border: '0.5px solid rgba(255, 69, 58, 0.32)',
+                  color: '#FF453A',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: signingOut ? 'not-allowed' : 'pointer',
+                  opacity: signingOut ? 0.6 : 1,
+                  textAlign: 'center',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'background-color 0.14s ease',
+                }}
               >
                 <LogoutIcon size={14} />
                 <span>{signingOut ? 'Signing out...' : 'Logout'}</span>
@@ -701,19 +1315,79 @@ export function UserChrome({ user, data, setData }) {
 
 function ProfileRow({ label, value, mono, link, children }) {
   return (
-    <div className="crm-profile-row">
-      <span className="crm-profile-label">{label}</span>
-      <div className="crm-profile-value-wrap">
+    <div
+      className="crm-profile-row"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 14px',
+        minHeight: '40px',
+        borderBottom: '0.5px solid rgba(255, 255, 255, 0.08)',
+        gap: '12px',
+        boxSizing: 'border-box',
+      }}
+    >
+      <span
+        className="crm-profile-label"
+        style={{
+          fontSize: '13.5px',
+          fontWeight: 400,
+          letterSpacing: '-0.01em',
+          color: 'rgba(235, 235, 245, 0.6)',
+          textTransform: 'none',
+          flexShrink: 0,
+        }}
+      >
+        {label}
+      </span>
+      <div
+        className="crm-profile-value-wrap"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          gap: '8px',
+          minWidth: 0,
+          flex: 1,
+        }}
+      >
         <span
           className={
             'crm-profile-value' +
             (mono ? ' crm-profile-mono' : '') +
             (link ? ' crm-profile-link' : '')
           }
+          style={{
+            fontSize: '13.5px',
+            fontWeight: 500,
+            letterSpacing: '-0.01em',
+            color: link ? '#0A84FF' : '#FFFFFF',
+            fontFamily: mono ? '-apple-system-monospaced, SFMono-Regular, "SF Mono", Menlo, monospace' : 'inherit',
+            textAlign: 'right',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
         >
           {value}
         </span>
-        {children && <div className="crm-profile-row-actions">{children}</div>}
+        {children && (
+          <div
+            className="crm-profile-row-actions"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              flexShrink: 0,
+            }}
+          >
+            {children}
+          </div>
+        )}
       </div>
     </div>
   );
